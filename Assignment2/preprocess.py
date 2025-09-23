@@ -5,7 +5,7 @@ import re
 
 # --- CONFIG ---
 INPUT_PATH = "basic_data_3.jsonl"          # original file
-OUTPUT_PATH = "basic_data_3.cleaned.jsonl" # output JSONL with unique ids
+OUTPUT_PATH = "basic_data_3.cleaned.jsonl" # output cleaned JSONL 
 # -----------------------------------
 
 def iter_objects(raw: str):
