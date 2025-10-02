@@ -21,9 +21,22 @@ df.to_csv("alt_dataset/train.csv", index=False)
 df.to_csv("alt_dataset/test.csv", index=False)
 
 
-# Load cleaned data
+# Load data
 train_df = pd.read_parquet("alt_dataset/train.parquet")
 test_df = pd.read_parquet("alt_dataset/test.parquet")
+
+# Clean data
+# Drop unnecessary columns
+train_df = df.drop(columns=["unique_id", "__index_level_0__"], errors="ignore", inplace=True)
+test_df = df.drop(columns=["unique_id", "__index_level_0__"], errors="ignore", inplace=True)
+
+# Drop rows with missing 'code' values
+train_df = df.dropna(subset=["code"])
+test_df = df.dropna(subset=["code"])
+
+# Remove duplicate code entries
+train_df = df.drop_duplicates(subset=["code"])
+test_df = df.drop_duplicates(subset=["code"])
 
 
 # Basic data exploration
@@ -33,14 +46,14 @@ print("Head of test data:")
 print(test_df.head())
 
 
-# Drop unwanted columns and separate features and target for training set
-X = train_df.drop(["target", "unique_id", "__index_level_0__"], axis=1)
+# Assign features and target variable for training set
+X = train_df["code"]
 y = train_df["target"]
 
 
 # Text vectorization for increased performance
 vectorizer = TfidfVectorizer(max_features=5000)  
-X_tfidf = vectorizer.fit_transform(X["code"])
+X_tfidf = vectorizer.fit_transform(X)
 
 
 # Split data into training and validation sets (80% train, 20% val), random state for reproducibility
@@ -69,12 +82,12 @@ print("KNN:\n", classification_report(y_val, knn.predict(X_val)))
 
 
 
-# Drop unwanted columns and separate features and target for test set
-X_test = test_df.drop(["target", "unique_id", "__index_level_0__"], axis=1)
+# Assign features and target variable for test set
+X_test = test_df["code"]
 y_test = test_df["target"]
 
 # Transform test set using the same vectorizer
-X_test_tfidf = vectorizer.transform(X_test["code"])
+X_test_tfidf = vectorizer.transform(X_test)
 
 
 # Final evaluation of models using unseen data in test set
