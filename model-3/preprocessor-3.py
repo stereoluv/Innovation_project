@@ -18,14 +18,13 @@ def preprocess_cve_data(csv_content: str) -> pd.DataFrame:
     Returns:
         A cleaned Pandas DataFrame.
     """
-    # 1. Read the raw string data into a DataFrame
-    # Use io.StringIO to treat the string as a file-like object
+    
     df = pd.read_csv(io.StringIO(csv_content))
 
     print(f"Initial shape: {df.shape}")
     print(f"Initial columns: {list(df.columns)}")
 
-    # 2. Drop unnecessary columns as requested
+    # 1. Drop unnecessary columns
     COLUMNS_TO_DROP = ['CVE-ID', 'CVSS-V3']
     df = df.drop(columns=COLUMNS_TO_DROP, errors='ignore')
 
@@ -38,7 +37,7 @@ def preprocess_cve_data(csv_content: str) -> pd.DataFrame:
     df['CVSS-V2'] = pd.to_numeric(df['CVSS-V2'], errors='coerce')
     
     # ------------------ STEP 5 (CWE Filtering) ------------------
-    # Filters out NVD-CWE-Other and NVD-noinfo CWE-ID entries as requested.
+    # Filters out NVD-CWE-Other and NVD-noinfo CWE-ID entries.
     CWE_FILTER_VALUES = ['NVD-CWE-Other', 'NVD-noinfo', 'NVD-CWE-noinfo']
     
     # Store initial row count for reporting
@@ -81,15 +80,12 @@ if __name__ == "__main__":
         print("Please ensure 'Global_Dataset.csv' is in the same directory as this script.")
     else:
         try:
-            # 1. Read the content from the actual file
             print(f"--- Attempting to read data from '{INPUT_FILE}' ---")
             with open(INPUT_FILE, 'r', encoding='utf-8') as f:
                 raw_data_content = f.read()
             
-            # 2. Process the data
             cleaned_df = preprocess_cve_data(raw_data_content)
             
-            # 3. Save the cleaned dataset
             OUTPUT_FILE = "model-3/data/cleaned_cve_data.csv"
             cleaned_df.to_csv(OUTPUT_FILE, index=False)
             
